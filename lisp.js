@@ -329,63 +329,46 @@ var env = {
   },
 };
 
-evl(
-  [
-    "set",
-    "mac",
-    [
-      "macro",
-      "args",
-      [
-        "arr",
-        ["quote", "set"],
-        [0, "args"],
-        [
-          "concat",
-          ["arr", ["quote", "macro"], [1, "args"]],
-          ["slice", "args", 2],
-        ],
-      ],
-    ],
-  ],
-  env
-);
+function macset(op) {
+  return [
+    "arr",
+    ["quote", "set"],
+    [0, "args"],
+    ["concat", ["arr", ["quote", op], [1, "args"]], ["slice", "args", 2]],
+  ];
+}
+
+evl(["set", "mac", ["macro", "args", macset("macro")]], env);
+evl(["mac", "def", "args", macset("fn")], env);
 
 console.log(evl("a", env));
 console.log(evl(["set", "b", 99], env));
-console.log(evl(["set", "c", "a"], env));
+evl(["set", "c", "a"], env);
 console.log(evl("c", env));
 console.log(evl(["if", 0, "b", "c"], env));
 console.log(evl(["do", "a", "b", "c"], env));
 console.log(evl(["do", 100], env));
 console.log(evl(["+", "b", "c"], env));
-console.log(
-  evl(["set", "add", ["fn", ["x", "y"], ["+", 1, 2], ["+", "x", "y"]]], env)
-);
-//console.log(evl(["set", "add", ["fn", ["x", "y"], ["+", "x", "y"]]], env));
-//console.log(evl("add", env));
+evl(["def", "add", ["x", "y"], ["+", 1, 2], ["+", "x", "y"]], env);
+//evl(["def", "add", ["x", "y"], ["+", "x", "y"]], env);
 console.log(evl(["add", 3, 4], env));
-console.log(evl(["set", "a1", ["arr", 1, 2, 3]], env));
+evl(["set", "a1", ["arr", 1, 2, 3]], env);
 console.log(evl("a1", env));
 console.log(evl([0, "a1"], env));
-console.log(evl(["set", "dict", { a: 1, b: 2 }], env));
+evl(["set", "dict", { a: 1, b: 2 }], env);
 console.log(evl([["quote", "b"], "dict"], env));
 console.log(evl([["quote", [97, 98, 99]], 1], env));
 console.log(evl(["dict", ["quote", "b"]], env));
-console.log(evl(["set", "first", ["fn", ["x"], [0, "x"]]], env));
-console.log(evl(["set", "rest", ["fn", ["x"], ["slice", "x", 1]]], env));
-console.log(evl(["set", "copy", ["fn", ["x"], ["slice", "x", 0]]], env));
-console.log(evl(["set", "empty", ["fn", ["x"], ["id", ["len", "x"], 0]]], env));
-console.log(evl(["set", "not", ["fn", ["x"], ["id", "x", false]]], env));
+evl(["def", "first", ["x"], [0, "x"]], env);
+evl(["def", "rest", ["x"], ["slice", "x", 1]], env);
+evl(["def", "copy", ["x"], ["slice", "x", 0]], env);
+evl(["def", "empty", ["x"], ["id", ["len", "x"], 0]], env);
+evl(["def", "not", ["x"], ["id", "x", false]], env);
 console.log(evl(["first", "a1"], env));
 console.log(evl(["rest", "a1"], env));
 console.log(evl(["empty", "a1"], env));
 console.log(evl(["not", ["id", ["len", ["copy", "a1"]], 2]], env));
 console.log(evl(["type", null], env));
-
-console.log(
-  evl(["mac", "double", ["x"], ["arr", ["quote", "+"], "x", "x"]], env)
-);
-
+evl(["mac", "double", ["x"], ["arr", ["quote", "+"], "x", "x"]], env);
 console.log(evl(["double", 3], env));
 console.log(evl(["concat", ["quote", [1, 2, 3]], ["quote", [4, 5, 6]]], env));
