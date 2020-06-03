@@ -105,8 +105,9 @@
 (mac if args
   (? (empty args)
      false
-     (let p (0 args)
-       (arr '? p (? (id (length args) 1) p (1 args)) (concat (arr 'if) (slice args 2))))))
+     (? (id (length args) 1)
+        (0 args)
+        (arr '? (0 args) (1 args) (concat (arr 'if) (slice args 2))))))
 
 (log (if))
 
