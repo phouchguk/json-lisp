@@ -229,12 +229,27 @@ function evl(json, env) {
     }
 
     if (numberp(op)) {
-      console.log("num", json);
       if (!(args.length === 1 && arrp(args[0]))) {
         throw new Error("bad number application");
       }
 
       return args[0][op];
+    }
+
+    if (symbolp(op)) {
+      if (!(args.length === 1 && objp(args[0]))) {
+        throw new Error("bad object application");
+      }
+
+      return args[0][op];
+    }
+
+    if (arrp(op)) {
+      if (!(args.length === 1 && numberp(args[0]))) {
+        throw new Error("bad array application");
+      }
+
+      return op[args[0]];
     }
 
     throw new Error("bad json");
@@ -263,3 +278,5 @@ console.log(evl(["set", "add", ["fn", ["x", "y"], ["+", "x", "y"]]], env));
 console.log(evl("add", env));
 console.log(evl(["add", 3, 4], env));
 console.log(evl([0, ["quote", [1, 2, 3]]], env));
+console.log(evl([["quote", "b"], { a: 1, b: 2 }], env));
+console.log(evl([["quote", [97, 98, 99]], 1], env));
