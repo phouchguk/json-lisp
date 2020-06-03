@@ -208,24 +208,34 @@ function evl(json, env) {
       return op.apply(null, args);
     }
 
-    if (compoundp(op)) {
-      json = op.body;
-      env = { _parent: env };
+    if (objp(op)) {
+      if (op.clo) {
+        // compound
+        json = op.body;
+        env = { _parent: env };
 
-      if (symbolp(op.parms)) {
-        env[op.parms] = args;
+        if (symbolp(op.parms)) {
+          env[op.parms] = args;
+        } else {
+          if (op.parms.length !== args.length) {
+            // should destructure arrs and objs
+            throw new Error("bad args");
+          }
+
+          for (var i = 0; i < op.parms.length; i++) {
+            env[op.parms[i]] = args[i];
+          }
+        }
+
+        continue;
       } else {
-        if (op.parms.length !== args.length) {
-          // should destructure arrs and objs
-          throw new Error("bad args");
+        // obj application
+        if (!(args.length === 1 && symbolp(args[0]))) {
+          throw new Error("bad object application");
         }
 
-        for (var i = 0; i < op.parms.length; i++) {
-          env[op.parms[i]] = args[i];
-        }
+        return op[args[0]];
       }
-
-      continue;
     }
 
     if (numberp(op)) {
@@ -238,7 +248,7 @@ function evl(json, env) {
 
     if (symbolp(op)) {
       if (!(args.length === 1 && objp(args[0]))) {
-        throw new Error("bad object application");
+        throw new Error("bad symbol application");
       }
 
       return args[0][op];
@@ -280,3 +290,4 @@ console.log(evl(["add", 3, 4], env));
 console.log(evl([0, ["quote", [1, 2, 3]]], env));
 console.log(evl([["quote", "b"], { a: 1, b: 2 }], env));
 console.log(evl([["quote", [97, 98, 99]], 1], env));
+console.log(evl([{ a: 1, b: 2 }, ["quote", "b"]], env));
