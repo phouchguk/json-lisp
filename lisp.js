@@ -12,6 +12,10 @@ function boolp(x) {
   return typeof x === "boolean";
 }
 
+function compoundp(x) {
+  return objp(x) && x.clo === true;
+}
+
 function dop(x) {
   if (taggedArr(x, "do")) {
     if (x.length === 1) {
@@ -60,6 +64,10 @@ function numberp(x) {
 
 function objp(x) {
   return rawobjp(x) && typeof x.str === "undefined";
+}
+
+function primitivep(x) {
+  return jsfnp(x);
 }
 
 function rawobjp(x) {
@@ -158,9 +166,28 @@ function evl(json, env) {
       args.push(evl(json[i], env));
     }
 
-    if (jsfnp(op)) {
-      // primitive
+    if (primitivep(op)) {
       return op.apply(null, args);
+    }
+
+    if (compoundp(op)) {
+      json = op.body;
+      env = { _parent: env };
+
+      if (symbolp(op.parms)) {
+        env[op.parms] = args;
+      } else {
+        if (op.parms.length !== args.length) {
+          // should destructure arrs and objs
+          throw new Error("bad args");
+        }
+
+        for (var i = 0; i < op.parms.length; i++) {
+          env[op.parms[i]] = args[i];
+        }
+      }
+
+      continue;
     }
 
     throw new Error("bad json");
@@ -174,6 +201,8 @@ var env = {
   },
 };
 
+env["add"] = { clo: true, parms: ["x", "y"], body: ["+", "x", "y"] };
+
 console.log(evl("a", env));
 console.log(evl(["set", "b", 99], env));
 console.log(evl(["set", "c", "a"], env));
@@ -182,3 +211,4 @@ console.log(evl(["if", 0, "b", "c"], env));
 console.log(evl(["do", "a", "b", "c"], env));
 console.log(evl(["do", 100], env));
 console.log(evl(["+", "b", "c"], env));
+console.log(evl(["add", 3, 4], env));
