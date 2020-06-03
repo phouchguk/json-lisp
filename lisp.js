@@ -28,6 +28,10 @@ function dop(x) {
   return false;
 }
 
+function fnp(x) {
+  return taggedArr(x, "fn");
+}
+
 function ifp(x) {
   if (taggedArr(x, "if")) {
     if (x.length !== 4) {
@@ -153,6 +157,24 @@ function evl(json, env) {
       continue;
     }
 
+    if (fnp(json)) {
+      var bodyLen = json.length - 2; // trim fn tag and parms
+      var body = false;
+
+      if (bodyLen === 1) {
+        body = json[2];
+      } else {
+        body = json.slice(2);
+        body.unshift("do");
+      }
+
+      return {
+        clo: true,
+        parms: json[1],
+        body: body,
+      };
+    }
+
     // application
     if (!arrp(json)) {
       throw new Error("expected list");
@@ -201,7 +223,7 @@ var env = {
   },
 };
 
-env["add"] = { clo: true, parms: ["x", "y"], body: ["+", "x", "y"] };
+//env["add"] = { clo: true, parms: ["x", "y"], body: ["+", "x", "y"] };
 
 console.log(evl("a", env));
 console.log(evl(["set", "b", 99], env));
@@ -211,4 +233,7 @@ console.log(evl(["if", 0, "b", "c"], env));
 console.log(evl(["do", "a", "b", "c"], env));
 console.log(evl(["do", 100], env));
 console.log(evl(["+", "b", "c"], env));
+//console.log(evl(["set", "add", ["fn", ["x", "y"],  ["+", 1, 2], ["+", "x", "y"]]], env));
+console.log(evl(["set", "add", ["fn", ["x", "y"], ["+", "x", "y"]]], env));
+console.log(evl("add", env));
 console.log(evl(["add", 3, 4], env));
