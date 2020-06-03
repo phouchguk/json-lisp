@@ -302,6 +302,9 @@ var env = {
   arr: function () {
     return Array.prototype.slice.call(arguments);
   },
+  concat: function (a, b) {
+    return a.concat(b);
+  },
   slice: function (a, n) {
     return a.slice(n);
   },
@@ -325,6 +328,28 @@ var env = {
     return typeof x;
   },
 };
+
+evl(
+  [
+    "set",
+    "mac",
+    [
+      "macro",
+      "args",
+      [
+        "arr",
+        ["quote", "set"],
+        [0, "args"],
+        [
+          "concat",
+          ["arr", ["quote", "macro"], [1, "args"]],
+          ["slice", "args", 2],
+        ],
+      ],
+    ],
+  ],
+  env
+);
 
 console.log(evl("a", env));
 console.log(evl(["set", "b", 99], env));
@@ -359,10 +384,8 @@ console.log(evl(["not", ["id", ["len", ["copy", "a1"]], 2]], env));
 console.log(evl(["type", null], env));
 
 console.log(
-  evl(
-    ["set", "double", ["macro", ["x"], ["arr", ["quote", "+"], "x", "x"]]],
-    env
-  )
+  evl(["mac", "double", ["x"], ["arr", ["quote", "+"], "x", "x"]], env)
 );
 
 console.log(evl(["double", 3], env));
+console.log(evl(["concat", ["quote", [1, 2, 3]], ["quote", [4, 5, 6]]], env));
