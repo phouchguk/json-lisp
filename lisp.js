@@ -39,7 +39,7 @@ function jsfnp(x) {
 }
 
 function lookup(v, env) {
-  while (true) {
+  for (;;) {
     if (typeof env[v] !== "undefined") {
       return env[v];
     }
@@ -97,7 +97,7 @@ function selfEvaluating(x) {
 }
 
 function set(v, val, env) {
-  while (true) {
+  for (;;) {
     if (typeof env[v] !== "undefined" || env._parent === core) {
       env[v] = val;
       return "ok";
@@ -159,7 +159,9 @@ function extendEnv(clo, args) {
 }
 
 function evl(json, env) {
-  while (true) {
+  var i;
+
+  for (;;) {
     if (selfEvaluating(json)) {
       return json;
     }
@@ -184,7 +186,7 @@ function evl(json, env) {
     if (dop(json)) {
       var lastIndex = json.length - 1;
 
-      for (var i = 1; i < lastIndex; i++) {
+      for (i = 1; i < lastIndex; i++) {
         evl(json[i], env);
       }
 
@@ -235,7 +237,7 @@ function evl(json, env) {
 
     var args = [];
 
-    for (var i = 1; i < json.length; i++) {
+    for (i = 1; i < json.length; i++) {
       args.push(evl(json[i], env));
     }
 
