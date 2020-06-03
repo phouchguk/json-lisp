@@ -74,6 +74,18 @@ function primitivep(x) {
   return jsfnp(x);
 }
 
+function quotep(x) {
+  if (taggedArr(x, "quote")) {
+    if (!(x.length === 2)) {
+      throw new Error("bad quote");
+    }
+
+    return true;
+  }
+
+  return false;
+}
+
 function rawobjp(x) {
   return typeof x === "object" && typeof x.length === "undefined";
 }
@@ -131,6 +143,10 @@ function evl(json, env) {
   while (true) {
     if (selfEvaluating(json)) {
       return json;
+    }
+
+    if (quotep(json)) {
+      return json[1];
     }
 
     if (variablep(json)) {
@@ -212,6 +228,15 @@ function evl(json, env) {
       continue;
     }
 
+    if (numberp(op)) {
+      console.log("num", json);
+      if (!(args.length === 1 && arrp(args[0]))) {
+        throw new Error("bad number application");
+      }
+
+      return args[0][op];
+    }
+
     throw new Error("bad json");
   }
 }
@@ -237,3 +262,4 @@ console.log(evl(["+", "b", "c"], env));
 console.log(evl(["set", "add", ["fn", ["x", "y"], ["+", "x", "y"]]], env));
 console.log(evl("add", env));
 console.log(evl(["add", 3, 4], env));
+console.log(evl([0, ["quote", [1, 2, 3]]], env));
