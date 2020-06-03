@@ -12,6 +12,18 @@ function boolp(x) {
   return typeof x === "boolean";
 }
 
+function dop(x) {
+  if (taggedArr(x, "do")) {
+    if (x.length === 1) {
+      throw new Error("empty do");
+    }
+
+    return true;
+  }
+
+  return false;
+}
+
 function ifp(x) {
   if (taggedArr(x, "if")) {
     if (x.length !== 4) {
@@ -22,6 +34,10 @@ function ifp(x) {
   }
 
   return false;
+}
+
+function jsfnp(x) {
+  return typeof x === "function";
 }
 
 function lookup(v, env) {
@@ -51,7 +67,9 @@ function rawobjp(x) {
 }
 
 function selfEvaluating(x) {
-  return numberp(x) || boolp(x) || undefinedp(x) || objp(x) || stringp(x);
+  return (
+    numberp(x) || boolp(x) || undefinedp(x) || jsfnp(x) || objp(x) || stringp(x)
+  );
 }
 
 function set(v, val, env) {
@@ -116,13 +134,51 @@ function evl(json, env) {
       continue;
     }
 
+    if (dop(json)) {
+      var lastIndex = json.length - 1;
+
+      for (var i = 1; i < lastIndex; i++) {
+        evl(json[i], env);
+      }
+
+      json = evl(json[lastIndex], env);
+      continue;
+    }
+
+    // application
+    if (!arrp(json)) {
+      throw new Error("expected list");
+    }
+
+    var op = evl(json[0], env);
+
+    var args = [];
+
+    for (var i = 1; i < json.length; i++) {
+      args.push(evl(json[i], env));
+    }
+
+    if (jsfnp(op)) {
+      // primitive
+      return op.apply(null, args);
+    }
+
     throw new Error("bad json");
   }
 }
 
-var env = { a: 42 };
+var env = {
+  a: 42,
+  "+": function (a, b) {
+    return a + b;
+  },
+};
+
 console.log(evl("a", env));
 console.log(evl(["set", "b", 99], env));
 console.log(evl(["set", "c", "a"], env));
 console.log(evl("c", env));
 console.log(evl(["if", 0, "b", "c"], env));
+console.log(evl(["do", "a", "b", "c"], env));
+console.log(evl(["do", 100], env));
+console.log(evl(["+", "b", "c"], env));
