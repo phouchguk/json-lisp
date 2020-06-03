@@ -52,6 +52,10 @@ function lookup(v, env) {
   }
 }
 
+function macp(x) {
+  return taggedArr(x, "macro");
+}
+
 function numberp(x) {
   return typeof x === "number";
 }
@@ -135,6 +139,26 @@ function variablep(x) {
   return symbolp(x);
 }
 
+function extendEnv(clo, args) {
+  env = { _parent: clo.env };
+
+  if (symbolp(clo.parms)) {
+    env[clo.parms] = args;
+  } else {
+    if (clo.parms.length !== args.length) {
+      // should destructure arrs and objs
+      console.log(clo, args);
+      throw new Error("bad args");
+    }
+
+    for (var i = 0; i < clo.parms.length; i++) {
+      env[clo.parms[i]] = args[i];
+    }
+  }
+
+  return env;
+}
+
 function evl(json, env) {
   while (true) {
     if (selfEvaluating(json)) {
@@ -169,8 +193,8 @@ function evl(json, env) {
       continue;
     }
 
-    if (fnp(json)) {
-      var bodyLen = json.length - 2; // trim fn tag and parms
+    if (fnp(json) || macp(json)) {
+      var bodyLen = json.length - 2; // rm fn tag and parms
       var body = false;
 
       if (bodyLen === 1) {
@@ -180,11 +204,19 @@ function evl(json, env) {
         body.unshift("do");
       }
 
-      return {
-        clo: true,
+      var clo = {
         parms: json[1],
         body: body,
+        env: env,
       };
+
+      if (fnp(json)) {
+        clo.clo = true;
+      } else {
+        clo.mac = true;
+      }
+
+      return clo;
     }
 
     // application
@@ -193,6 +225,14 @@ function evl(json, env) {
     }
 
     var op = evl(json[0], env);
+    var opIsObj = objp(op);
+
+    if (opIsObj && op.mac) {
+      // don't evaluate args
+      json = evl(op.body, extendEnv(op, json.slice(1)));
+
+      continue;
+    }
 
     var args = [];
 
@@ -204,25 +244,11 @@ function evl(json, env) {
       return op.apply(null, args);
     }
 
-    if (objp(op)) {
+    if (opIsObj) {
       if (op.clo) {
         // compound
         json = op.body;
-        env = { _parent: env };
-
-        if (symbolp(op.parms)) {
-          env[op.parms] = args;
-        } else {
-          if (op.parms.length !== args.length) {
-            // should destructure arrs and objs
-            throw new Error("bad args");
-          }
-
-          for (var i = 0; i < op.parms.length; i++) {
-            env[op.parms[i]] = args[i];
-          }
-        }
-
+        env = extendEnv(op, args);
         continue;
       } else {
         // obj application
@@ -273,7 +299,7 @@ var env = {
   len: function (a) {
     return a.length;
   },
-  list: function () {
+  arr: function () {
     return Array.prototype.slice.call(arguments);
   },
   slice: function (a, n) {
@@ -314,7 +340,7 @@ console.log(
 //console.log(evl(["set", "add", ["fn", ["x", "y"], ["+", "x", "y"]]], env));
 //console.log(evl("add", env));
 console.log(evl(["add", 3, 4], env));
-console.log(evl(["set", "a1", ["list", 1, 2, 3]], env));
+console.log(evl(["set", "a1", ["arr", 1, 2, 3]], env));
 console.log(evl("a1", env));
 console.log(evl([0, "a1"], env));
 console.log(evl(["set", "dict", { a: 1, b: 2 }], env));
@@ -331,3 +357,12 @@ console.log(evl(["rest", "a1"], env));
 console.log(evl(["empty", "a1"], env));
 console.log(evl(["not", ["id", ["len", ["copy", "a1"]], 2]], env));
 console.log(evl(["type", null], env));
+
+console.log(
+  evl(
+    ["set", "double", ["macro", ["x"], ["arr", ["quote", "+"], "x", "x"]]],
+    env
+  )
+);
+
+console.log(evl(["double", 3], env));
