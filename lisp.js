@@ -1,5 +1,3 @@
-var testEnv = { a: 42 };
-
 function arrp(x) {
   return typeof x === "object" && typeof x.length !== "undefined";
 }
@@ -10,10 +8,6 @@ function atomp(x) {
 
 function boolp(x) {
   return typeof x === "boolean";
-}
-
-function compoundp(x) {
-  return objp(x) && x.clo === true;
 }
 
 function dop(x) {
@@ -273,8 +267,6 @@ var env = {
   },
 };
 
-//env["add"] = { clo: true, parms: ["x", "y"], body: ["+", "x", "y"] };
-
 console.log(evl("a", env));
 console.log(evl(["set", "b", 99], env));
 console.log(evl(["set", "c", "a"], env));
@@ -283,8 +275,10 @@ console.log(evl(["if", 0, "b", "c"], env));
 console.log(evl(["do", "a", "b", "c"], env));
 console.log(evl(["do", 100], env));
 console.log(evl(["+", "b", "c"], env));
-//console.log(evl(["set", "add", ["fn", ["x", "y"],  ["+", 1, 2], ["+", "x", "y"]]], env));
-console.log(evl(["set", "add", ["fn", ["x", "y"], ["+", "x", "y"]]], env));
+console.log(
+  evl(["set", "add", ["fn", ["x", "y"], ["+", 1, 2], ["+", "x", "y"]]], env)
+);
+//console.log(evl(["set", "add", ["fn", ["x", "y"], ["+", "x", "y"]]], env));
 console.log(evl("add", env));
 console.log(evl(["add", 3, 4], env));
 console.log(evl([0, ["quote", [1, 2, 3]]], env));
