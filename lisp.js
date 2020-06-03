@@ -98,7 +98,7 @@ function selfEvaluating(x) {
 
 function set(v, val, env) {
   while (true) {
-    if (typeof env[v] !== "undefined" || typeof env._parent === "undefined") {
+    if (typeof env[v] !== "undefined" || env._parent === core) {
       env[v] = val;
       return "ok";
     }
@@ -140,14 +140,13 @@ function variablep(x) {
 }
 
 function extendEnv(clo, args) {
-  env = { _parent: clo.env };
+  var env = { _parent: clo.env };
 
   if (symbolp(clo.parms)) {
     env[clo.parms] = args;
   } else {
     if (clo.parms.length !== args.length) {
       // should destructure arrs and objs
-      console.log(clo, args);
       throw new Error("bad args");
     }
 
@@ -288,8 +287,7 @@ function evl(json, env) {
   }
 }
 
-var env = {
-  a: 42,
+var core = {
   "+": function (a, b) {
     return a + b;
   },
@@ -329,6 +327,8 @@ var env = {
   },
 };
 
+var env = { _parent: core };
+
 function macset(op) {
   return [
     "arr",
@@ -341,8 +341,9 @@ function macset(op) {
 evl(["set", "mac", ["macro", "args", macset("macro")]], env);
 evl(["mac", "def", "args", macset("fn")], env);
 
+console.log(evl(["set", "a", 42], env));
 console.log(evl("a", env));
-console.log(evl(["set", "b", 99], env));
+evl(["set", "b", 99], env);
 evl(["set", "c", "a"], env);
 console.log(evl("c", env));
 console.log(evl(["if", 0, "b", "c"], env));
@@ -369,6 +370,6 @@ console.log(evl(["rest", "a1"], env));
 console.log(evl(["empty", "a1"], env));
 console.log(evl(["not", ["id", ["len", ["copy", "a1"]], 2]], env));
 console.log(evl(["type", null], env));
-evl(["mac", "double", ["x"], ["arr", ["quote", "+"], "x", "x"]], env);
+evl(["mac", "double", ["x"], ["arr", ["quote", "add"], "x", "x"]], env);
 console.log(evl(["double", 3], env));
 console.log(evl(["concat", ["quote", [1, 2, 3]], ["quote", [4, 5, 6]]], env));
