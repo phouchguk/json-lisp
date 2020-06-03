@@ -243,44 +243,72 @@ function evl(json, env) {
       return op.apply(null, args);
     }
 
-    if (opIsObj) {
-      if (op.clo) {
-        // compound
-        json = op.body;
-        env = extendEnv(op, args);
-        continue;
-      } else {
-        // obj application
-        if (!(args.length === 1 && symbolp(args[0]))) {
-          throw new Error("bad object application");
-        }
+    if (opIsObj && op.clo) {
+      // compound
+      json = op.body;
+      env = extendEnv(op, args);
+      continue;
+    }
 
-        return op[args[0]];
+    var argl = args.length;
+
+    if (!(argl === 1 || argl === 2)) {
+      throw new Error("bad application args");
+    }
+
+    var isAssign = argl === 2;
+
+    if (opIsObj) {
+      // obj application
+      if (!symbolp(args[0])) {
+        throw new Error("bad object application");
       }
+
+      if (isAssign) {
+        op[args[0]] = args[1];
+        return "ok";
+      }
+
+      return op[args[0]];
+    }
+
+    if (arrp(op)) {
+      if (!numberp(args[0])) {
+        throw new Error("bad array application");
+      }
+
+      if (isAssign) {
+        op[args[0]] = args[1];
+        return "ok";
+      }
+
+      return op[args[0]];
     }
 
     if (numberp(op)) {
-      if (!(args.length === 1 && arrp(args[0]))) {
+      if (!arrp(args[0])) {
         throw new Error("bad number application");
+      }
+
+      if (isAssign) {
+        args[0][op] = args[1];
+        return "ok";
       }
 
       return args[0][op];
     }
 
     if (symbolp(op)) {
-      if (!(args.length === 1 && objp(args[0]))) {
+      if (!objp(args[0])) {
         throw new Error("bad symbol application");
       }
 
-      return args[0][op];
-    }
-
-    if (arrp(op)) {
-      if (!(args.length === 1 && numberp(args[0]))) {
-        throw new Error("bad array application");
+      if (isAssign) {
+        args[0][op] = args[1];
+        return "ok";
       }
 
-      return op[args[0]];
+      return args[0][op];
     }
 
     throw new Error("bad json");
@@ -356,10 +384,16 @@ console.log(evl(["add", 3, 4], env));
 evl(["set", "a1", ["arr", 1, 2, 3]], env);
 console.log(evl("a1", env));
 console.log(evl([0, "a1"], env));
+evl([0, "a1", 10], env);
+evl(["a1", 2, 100], env);
+console.log(evl("a1", env));
 evl(["set", "dict", { a: 1, b: 2 }], env);
 console.log(evl([["quote", "b"], "dict"], env));
+evl([["quote", "b"], "dict", 22], env);
 console.log(evl([["quote", [97, 98, 99]], 1], env));
 console.log(evl(["dict", ["quote", "b"]], env));
+evl(["dict", ["quote", "b"], 2], env);
+console.log(evl([["quote", "b"], "dict"], env));
 evl(["def", "first", ["x"], [0, "x"]], env);
 evl(["def", "rest", ["x"], ["slice", "x", 1]], env);
 evl(["def", "copy", ["x"], ["slice", "x", 0]], env);
