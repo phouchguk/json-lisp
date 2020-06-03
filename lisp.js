@@ -38,6 +38,29 @@ function selfEvaluating(x) {
   return numberp(x) || objp(x) || stringp(x);
 }
 
+function set(v, val, env) {
+  while (true) {
+    if (typeof env[v] !== "undefined" || typeof env._parent === "undefined") {
+      env[v] = val;
+      return "ok";
+    }
+
+    env = env._parent;
+  }
+}
+
+function setp(x) {
+  if (taggedArr(x, "set")) {
+    if (!(x.length === 3 && symbolp(x[1]))) {
+      throw new Error("bad set");
+    }
+
+    return true;
+  }
+
+  return false;
+}
+
 function stringp(x) {
   return rawobjp(x) && x.str === true;
 }
@@ -46,11 +69,15 @@ function symbolp(x) {
   return typeof x === "string";
 }
 
+function taggedArr(x, tag) {
+  return arrp(x) && x[0] === tag;
+}
+
 function variablep(x) {
   return symbolp(x);
 }
 
-function eval(json, env) {
+function evl(json, env) {
   if (selfEvaluating(json)) {
     return json;
   }
@@ -59,7 +86,14 @@ function eval(json, env) {
     return lookup(json, env);
   }
 
+  if (setp(json)) {
+    return set(json[1], evl(json[2], env), env);
+  }
+
   throw new Error("bad json");
 }
 
-console.log(eval("a", {a: 42}));
+var env = { a: 42 };
+console.log(evl("a", env));
+console.log(evl(["set", "b", "a"], env));
+console.log(evl("b", env));
