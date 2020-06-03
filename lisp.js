@@ -8,6 +8,22 @@ function atomp(x) {
   return !(objp(x) || arrp(x));
 }
 
+function boolp(x) {
+  return typeof x === "boolean";
+}
+
+function ifp(x) {
+  if (taggedArr(x, "if")) {
+    if (x.length !== 4) {
+      throw new Error("bad if");
+    }
+
+    return true;
+  }
+
+  return false;
+}
+
 function lookup(v, env) {
   while (true) {
     if (typeof env[v] !== "undefined") {
@@ -35,7 +51,7 @@ function rawobjp(x) {
 }
 
 function selfEvaluating(x) {
-  return numberp(x) || objp(x) || stringp(x);
+  return numberp(x) || boolp(x) || undefinedp(x) || objp(x) || stringp(x);
 }
 
 function set(v, val, env) {
@@ -62,15 +78,19 @@ function setp(x) {
 }
 
 function stringp(x) {
-  return rawobjp(x) && x.str === true;
+  return x === "" || (rawobjp(x) && x.str === true);
 }
 
 function symbolp(x) {
-  return typeof x === "string";
+  return typeof x === "string" && x.length > 0;
 }
 
 function taggedArr(x, tag) {
   return arrp(x) && x[0] === tag;
+}
+
+function undefinedp(x) {
+  return typeof x === "undefined";
 }
 
 function variablep(x) {
@@ -78,22 +98,31 @@ function variablep(x) {
 }
 
 function evl(json, env) {
-  if (selfEvaluating(json)) {
-    return json;
-  }
+  while (true) {
+    if (selfEvaluating(json)) {
+      return json;
+    }
 
-  if (variablep(json)) {
-    return lookup(json, env);
-  }
+    if (variablep(json)) {
+      return lookup(json, env);
+    }
 
-  if (setp(json)) {
-    return set(json[1], evl(json[2], env), env);
-  }
+    if (setp(json)) {
+      return set(json[1], evl(json[2], env), env);
+    }
 
-  throw new Error("bad json");
+    if (ifp(json)) {
+      json = evl(json[1], env) === false ? json[3] : json[2];
+      continue;
+    }
+
+    throw new Error("bad json");
+  }
 }
 
 var env = { a: 42 };
 console.log(evl("a", env));
-console.log(evl(["set", "b", "a"], env));
-console.log(evl("b", env));
+console.log(evl(["set", "b", 99], env));
+console.log(evl(["set", "c", "a"], env));
+console.log(evl("c", env));
+console.log(evl(["if", 0, "b", "c"], env));
