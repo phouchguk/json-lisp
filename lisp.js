@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 function arrp(x) {
   return typeof x === "object" && typeof x.length !== "undefined";
 }
@@ -190,7 +192,7 @@ function evl(json, env) {
         evl(json[i], env);
       }
 
-      json = evl(json[lastIndex], env);
+      json = json[lastIndex];
       continue;
     }
 
@@ -255,7 +257,8 @@ function evl(json, env) {
     var argl = args.length;
 
     if (!(argl === 1 || argl === 2)) {
-      throw new Error("bad application args");
+      console.log(json);
+      throw new Error("bad application arg count");
     }
 
     var isAssign = argl === 2;
@@ -321,17 +324,20 @@ var core = {
   "+": function (a, b) {
     return a + b;
   },
-  id: function (a, b) {
-    return a === b;
-  },
-  len: function (a) {
-    return a.length;
-  },
   arr: function () {
     return Array.prototype.slice.call(arguments);
   },
   concat: function (a, b) {
     return a.concat(b);
+  },
+  id: function (a, b) {
+    return a === b;
+  },
+  length: function (a) {
+    return a.length;
+  },
+  log: function (x) {
+    return console.log(x);
   },
   slice: function (a, n) {
     return a.slice(n);
@@ -358,7 +364,9 @@ var core = {
 };
 
 var env = { _parent: core };
+evl(JSON.parse(fs.readFileSync("test.json")), env);
 
+/*
 function macset(op) {
   return [
     "arr",
@@ -409,3 +417,4 @@ console.log(evl(["type", null], env));
 evl(["mac", "double", ["x"], ["arr", ["quote", "add"], "x", "x"]], env);
 console.log(evl(["double", 3], env));
 console.log(evl(["concat", ["quote", [1, 2, 3]], ["quote", [4, 5, 6]]], env));
+*/

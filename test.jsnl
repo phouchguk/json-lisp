@@ -1,0 +1,100 @@
+(do
+
+(set mac
+  (macro args
+    (arr 'set (0 args) (concat (arr 'macro (1 args)) (slice args 2)))))
+
+(mac def args
+  (arr 'set (0 args) (concat (arr 'fn (1 args)) (slice args 2))))
+
+(set a 42)
+(log a)
+
+(set b 99)
+(set c a)
+(log c)
+
+(log
+ (if 0 b c))
+
+(log
+ (do a b c))
+
+(log
+ (do 100))
+
+(log
+ (+ b c))
+
+(def add (x y)
+  (+ 1 2)
+  (+ x y))
+
+(log
+ (add 3 4))
+
+(set a1 [1 2 3])
+(log a1)
+(log
+ (0 a1))
+(0 a1 10)
+(a1 2 100)
+(log a1)
+
+(log
+ ([97 98 99] 1))
+
+(set dict {a 1 b 2})
+(log
+ ('b dict))
+
+('b dict 22)
+
+(log
+ (dict 'b))
+
+(dict 'b 2)
+
+(log
+ ('b dict))
+
+(def first (x)
+  (0 x))
+
+(def rest (x)
+  (slice x 1))
+
+(def copy (x)
+  (slice x 0))
+
+(def empty (x)
+  (id (length x) 0))
+
+(def not (x)
+  (id x false))
+
+(log
+ (first a1))
+
+(log
+ (rest a1))
+
+(log
+ (empty a1))
+
+(log
+ (not (id (length (copy a1)) 2)))
+
+(log
+ (type null))
+
+(mac double (x)
+  (arr 'add x x))
+
+(log
+ (double 3))
+
+(log
+ (concat [1 2 3] [4 5 6]))
+
+)
