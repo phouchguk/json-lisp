@@ -2,10 +2,6 @@ function arrp(x) {
   return typeof x === "object" && typeof x.length !== "undefined";
 }
 
-function atomp(x) {
-  return !(objp(x) || arrp(x));
-}
-
 function boolp(x) {
   return typeof x === "boolean";
 }
@@ -86,7 +82,13 @@ function rawobjp(x) {
 
 function selfEvaluating(x) {
   return (
-    numberp(x) || boolp(x) || undefinedp(x) || jsfnp(x) || objp(x) || stringp(x)
+    x === null ||
+    numberp(x) ||
+    boolp(x) ||
+    undefinedp(x) ||
+    jsfnp(x) ||
+    objp(x) ||
+    stringp(x)
   );
 }
 
@@ -187,7 +189,7 @@ function evl(json, env) {
 
     // application
     if (!arrp(json)) {
-      throw new Error("expected list");
+      throw new Error("expected array");
     }
 
     var op = evl(json[0], env);
@@ -265,6 +267,37 @@ var env = {
   "+": function (a, b) {
     return a + b;
   },
+  id: function (a, b) {
+    return a === b;
+  },
+  len: function (a) {
+    return a.length;
+  },
+  list: function () {
+    return Array.prototype.slice.call(arguments);
+  },
+  slice: function (a, n) {
+    return a.slice(n);
+  },
+  type: function (x) {
+    if (x === null) {
+      return "null";
+    }
+
+    if (rawobjp(x)) {
+      return x.clo ? "clo" : x.str ? "string" : "obj";
+    }
+
+    if (arrp(x)) {
+      return "array";
+    }
+
+    if (symbolp(x)) {
+      return "symbol";
+    }
+
+    return typeof x;
+  },
 };
 
 console.log(evl("a", env));
@@ -279,10 +312,22 @@ console.log(
   evl(["set", "add", ["fn", ["x", "y"], ["+", 1, 2], ["+", "x", "y"]]], env)
 );
 //console.log(evl(["set", "add", ["fn", ["x", "y"], ["+", "x", "y"]]], env));
-console.log(evl("add", env));
+//console.log(evl("add", env));
 console.log(evl(["add", 3, 4], env));
-console.log(evl([0, ["quote", [1, 2, 3]]], env));
+console.log(evl(["set", "a1", ["list", 1, 2, 3]], env));
+console.log(evl("a1", env));
+console.log(evl([0, "a1"], env));
 console.log(evl(["set", "dict", { a: 1, b: 2 }], env));
 console.log(evl([["quote", "b"], "dict"], env));
 console.log(evl([["quote", [97, 98, 99]], 1], env));
 console.log(evl(["dict", ["quote", "b"]], env));
+console.log(evl(["set", "first", ["fn", ["x"], [0, "x"]]], env));
+console.log(evl(["set", "rest", ["fn", ["x"], ["slice", "x", 1]]], env));
+console.log(evl(["set", "copy", ["fn", ["x"], ["slice", "x", 0]]], env));
+console.log(evl(["set", "empty", ["fn", ["x"], ["id", ["len", "x"], 0]]], env));
+console.log(evl(["set", "not", ["fn", ["x"], ["id", "x", false]]], env));
+console.log(evl(["first", "a1"], env));
+console.log(evl(["rest", "a1"], env));
+console.log(evl(["empty", "a1"], env));
+console.log(evl(["not", ["id", ["len", ["copy", "a1"]], 2]], env));
+console.log(evl(["type", null], env));
