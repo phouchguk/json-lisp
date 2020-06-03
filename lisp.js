@@ -25,7 +25,7 @@ function fnp(x) {
 }
 
 function ifp(x) {
-  if (taggedArr(x, "if")) {
+  if (taggedArr(x, "?")) {
     if (x.length !== 4) {
       throw new Error("bad if");
     }

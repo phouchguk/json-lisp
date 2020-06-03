@@ -15,7 +15,7 @@
 (log c)
 
 (log
- (if 0 b c))
+ (? 0 b c))
 
 (log
  (do a b c))
@@ -101,5 +101,20 @@
   (arr (concat (arr 'fn (arr (0 args))) (slice args 2)) (1 args)))
 
 (log (let x 9 (+ x 2)))
+
+(mac if args
+  (? (empty args)
+     false
+     (let p (0 args)
+       (arr '? p (? (id (length args) 1) p (1 args)) (concat (arr 'if) (slice args 2))))))
+
+(log (if))
+
+(log (if (+ 1 2)))
+
+(log
+ (if false b
+     false 999
+     (+ a 100)))
 
 )
