@@ -444,4 +444,5 @@ var core = {
 };
 
 var env = { _parent: core };
+evl(JSON.parse(fs.readFileSync("prelude.json")), env);
 evl(JSON.parse(fs.readFileSync("test.json")), env);
