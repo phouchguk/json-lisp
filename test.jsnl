@@ -31,6 +31,26 @@
           (concat (arr 'and) (slice args 1))
           false)))
 
+(def array (x)
+  (id (type x) "array"))
+
+(def atom (x)
+  (not (array x)))
+
+(def bqex (x)
+  (if (empty x)
+        (arr 'quote x)
+      (atom x)
+        (arr 'quote x)
+      (id (0 x) 'comma)
+        (1 x)
+      (and (array (0 x)) (id (0 (0 x)) 'comma-at))
+        (arr 'concat (1 (0 x)) (bqex (slice x 1)))
+        (arr 'concat (arr 'arr (bqex (0 x))) (bqex (slice x 1)))))
+
+(mac bquote (x)
+  (bqex x))
+
 (def uvar ()
   (set *uvarn* (+ *uvarn* 1))
   (+ "_g" *uvarn*))
@@ -137,8 +157,8 @@
 (log
  (concat [1 2 3] [4 5 6]))
 
-(mac let (parms val . body)
-  (arr (concat (arr 'fn (arr parms)) body) val))
+(mac let (parm val . body)
+  `((fn (,parm) ,@body) ,val))
 
 (log (let x 9 (+ x 2)))
 
@@ -160,27 +180,7 @@
 
 (log ((fn (x . y) y) 1 2 3))
 
-(def array (x)
-  (id (type x) "array"))
-
 (log (array []))
-
-(def atom (x)
-  (not (array x)))
-
-(def bqex (x)
-  (if (empty x)
-        (arr 'quote x)
-      (atom x)
-        (arr 'quote x)
-      (id (0 x) 'comma)
-        (1 x)
-      (and (array (0 x)) (id (0 (0 x)) 'comma-at))
-        (arr 'concat (1 (0 x)) (bqex (slice x 1)))
-        (arr 'concat (arr 'arr (bqex (0 x))) (bqex (slice x 1)))))
-
-(mac bquote (x)
-  (bqex x))
 
 (log (uvar))
 (log (uvar))
