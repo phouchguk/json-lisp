@@ -17,10 +17,6 @@
 (mac def (name args . body)
   (arr 'set name (concat (arr 'fn args) body)))
 
-(def uvar ()
-  (set *uvarn* (+ *uvarn* 1))
-  (+ "_g" *uvarn*))
-
 (mac if args
   (? (empty args)
      false
@@ -28,11 +24,23 @@
         (0 args)
         (arr '? (0 args) (1 args) (concat (arr 'if) (slice args 2))))))
 
+(mac and args
+  (? (id (length args) 1)
+     (0 args)
+     (arr '? (0 args)
+          (concat (arr 'and) (slice args 1))
+          false)))
+
+(def uvar ()
+  (set *uvarn* (+ *uvarn* 1))
+  (+ "_g" *uvarn*))
+
 (def log (x)
-  (. console 'log x))
+  (. console 'log x)
+  x)
 
 (set a 42)
-(log a)
+(log (+ (log a) 1))
 
 (set b 99)
 (set c a)
@@ -74,8 +82,10 @@
 
 ('b dict 22)
 
+(set z 'b)
+
 (log
- (dict 'b))
+ (dict z))
 
 (dict 'b 2)
 
@@ -167,5 +177,7 @@
 
 (log (uvar))
 (log (uvar))
+
+(log (and (log 1) false (log (/ 1 0)) 3))
 
 )
