@@ -5,11 +5,11 @@
 (set slice (fn (xs i) (. xs 'slice i)))
 
 (set mac
-  (macro args
-    (arr 'set (0 args) (concat (arr 'macro (1 args)) (slice args 2)))))
+  (macro (name args . body)
+    (arr 'set name (concat (arr 'macro args) body))))
 
-(mac def args
-  (arr 'set (0 args) (concat (arr 'fn (1 args)) (slice args 2))))
+(mac def (name args . body)
+  (arr 'set name (concat (arr 'fn args) body)))
 
 (def log (x)
   (. console 'log x))
@@ -107,8 +107,8 @@
 (log
  (concat [1 2 3] [4 5 6]))
 
-(mac let args
-  (arr (concat (arr 'fn (arr (0 args))) (slice args 2)) (1 args)))
+(mac let (parms val . body)
+  (arr (concat (arr 'fn (arr parms)) body) val))
 
 (log (let x 9 (+ x 2)))
 
