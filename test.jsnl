@@ -51,9 +51,19 @@
 (mac bquote (x)
   (bqex x))
 
+(mac let (parm val . body)
+  `((fn (,parm) ,@body) ,val))
+
 (def uvar ()
   (set *uvarn* (+ *uvarn* 1))
   (+ "_g" *uvarn*))
+
+(mac or args
+  (? (empty args)
+     false
+     (let v (uvar)
+       `(let ,v ,(0 args)
+          (? ,v ,v (or ,@(slice args 1)))))))
 
 (def log (x)
   (. console 'log x)
@@ -157,9 +167,6 @@
 (log
  (concat [1 2 3] [4 5 6]))
 
-(mac let (parm val . body)
-  `((fn (,parm) ,@body) ,val))
-
 (log (let x 9 (+ x 2)))
 
 (log (if))
@@ -188,5 +195,7 @@
 (log (and (log 1) false (log (/ 1 0)) 3))
 
 (log `(+ ,@(arr a a)))
+
+(log (or false 2 3))
 
 )
