@@ -1,5 +1,7 @@
 (do
 
+(set *uvarn* -1)
+
 (set concat
   (fn (a1 a2)
     (. a1 'concat a2)))
@@ -14,6 +16,10 @@
 
 (mac def (name args . body)
   (arr 'set name (concat (arr 'fn args) body)))
+
+(def uvar ()
+  (set *uvarn* (+ *uvarn* 1))
+  (+ "_g" *uvarn*))
 
 (mac if args
   (? (empty args)
@@ -140,5 +146,23 @@
 (log (. "[[[hello]]]" 'replace (new RegExp "\[" "g") "("))
 
 (log ((fn (x . y) y) 1 2 3))
+
+(def array (x)
+  (id (type x) "array"))
+
+(def atom (x)
+  (not (array x)))
+
+(def bquote (x)
+  (if (atom x)
+        (quote x)
+      (id (0 x) 'comma)
+        (1 x)
+      (and (array (0 x)) (id (0 (0 x)) 'comma-at))
+        (concat (1 (0 x)) (bquote (slice x 1)))
+        (concat (arr (bquote (0 x))) (bquote (slice x 1)))))
+
+(log (uvar))
+(log (uvar))
 
 )

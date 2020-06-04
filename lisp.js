@@ -363,12 +363,24 @@ var core = {
       return "null";
     }
 
+    if (typeof x === "undefined") {
+      return "undefined";
+    }
+
     if (rawobjp(x)) {
       return x.clo ? "clo" : "obj";
     }
 
     if (arrp(x)) {
       return "array";
+    }
+
+    if (boolp(x)) {
+      return "boolean";
+    }
+
+    if (numberp(x)) {
+      return "number";
     }
 
     if (symbolp(x)) {
