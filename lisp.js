@@ -149,12 +149,18 @@ function extendEnv(clo, args) {
   if (symbolp(clo.parms)) {
     env[clo.parms] = args;
   } else {
-    if (clo.parms.length !== args.length) {
+    var argl = args.length;
+    if (clo.parml > -1 && clo.parml !== argl) {
       // should destructure arrs and objs
       throw new Error("bad args");
     }
 
-    for (var i = 0; i < clo.parms.length; i++) {
+    for (var i = 0; i < argl; i++) {
+      if (clo.parms[i] === ".") {
+        env[clo.parms[i + 1]] = args.slice(i);
+        break;
+      }
+
       env[clo.parms[i]] = args[i];
     }
   }
@@ -217,6 +223,7 @@ function evl(json, env) {
         parms: json[1],
         body: body,
         env: env,
+        parml: json[1].indexOf(".") > -1 ? -1 : json[1].length,
       };
 
       if (fnp(json)) {

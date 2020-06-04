@@ -135,4 +135,6 @@
 
 (log (. "[[[hello]]]" 'replace (new RegExp "\[" "g") "("))
 
+(log ((fn (x . y) y) 1 2 3))
+
 )
