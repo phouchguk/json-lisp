@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require("fs");
 
 const STRING_ESC = "¬";
 const COMMA_AT = STRING_ESC + "@";
@@ -11,7 +11,7 @@ function extractStrings(x, i) {
     return x;
   } else {
     strings.push(x);
-    return STRING_ESC + ((i - 1) / 2);
+    return STRING_ESC + (i - 1) / 2;
   }
 }
 
@@ -19,25 +19,25 @@ function tokenise(s) {
   strings.length = 0;
 
   const tokens = s
-        .replace(/\\"/g, STRING_ESC)
-        .split(/"/g)
-        .map(extractStrings)
-        .join("")
-        .replace(/\[/g, "[quote [")
-        .replace(/\]/g, "]]")
-        .replace(/\(/g, "[")
-        .replace(/\)/g, "]")
-        .replace(/,@/g, " " + COMMA_AT + " ")
-        .replace(/\[/g, " [ ")
-        .replace(/\]/g, " ] ")
-        .replace(/\{/g, " { ")
-        .replace(/\}/g, " } ")
-        .replace(/'/g, " ' ")
-        .replace(/`/g, " ` ")
-        .replace(/,/g, " , ")
-        .split(" ")
-        .map(x => x.trim())
-        .filter(x => x !== "");
+    .replace(/\\"/g, STRING_ESC)
+    .split(/"/g)
+    .map(extractStrings)
+    .join("")
+    .replace(/\[/g, "[quote [")
+    .replace(/\]/g, "]]")
+    .replace(/\(/g, "[")
+    .replace(/\)/g, "]")
+    .replace(/,@/g, " " + COMMA_AT + " ")
+    .replace(/\[/g, " [ ")
+    .replace(/\]/g, " ] ")
+    .replace(/\{/g, " { ")
+    .replace(/\}/g, " } ")
+    .replace(/'/g, " ' ")
+    .replace(/`/g, " ` ")
+    .replace(/,/g, " , ")
+    .split(" ")
+    .map((x) => x.trim())
+    .filter((x) => x !== "");
 
   return tokens;
 }
@@ -45,13 +45,13 @@ function tokenise(s) {
 const delims = {
   "'": "quote",
   "`": "bquote",
-  ",": "comma"
+  ",": "comma",
 };
 
 delims[COMMA_AT] = "comma-at";
 
 function getString(i) {
-  return { str: strings[i] };
+  return ["quote", strings[i]];
 }
 
 function parseSymbol(s) {
@@ -148,6 +148,7 @@ function parse(tx) {
   return n;
 }
 
-const code = fs.readFileSync(process.argv[2], { encoding: "utf8", flag: "r" });
+const file = process.argv[2];
+const code = fs.readFileSync(file + ".jsnl", { encoding: "utf8", flag: "r" });
 const tokens = tokenise(code);
-fs.writeFileSync("out.json", JSON.stringify(parse(tokens)) + "\n");
+fs.writeFileSync(file + ".json", JSON.stringify(parse(tokens)) + "\n");

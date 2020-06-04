@@ -118,4 +118,9 @@
      false 999
      (+ a 100)))
 
+(log "hello")
+
+(log (. "hello" 'toUpperCase))
+(log (. "hello" '-length))
+
 )

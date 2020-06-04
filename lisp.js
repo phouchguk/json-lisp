@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require("fs");
 
 function arrp(x) {
   return typeof x === "object" && typeof x.length !== "undefined";
@@ -88,13 +88,15 @@ function rawobjp(x) {
 
 function selfEvaluating(x) {
   return (
+    x === "." ||
+    x === "apply" ||
+    x === "new" ||
     x === null ||
     numberp(x) ||
     boolp(x) ||
     undefinedp(x) ||
     jsfnp(x) ||
-    objp(x) ||
-    stringp(x)
+    objp(x)
   );
 }
 
@@ -119,10 +121,6 @@ function setp(x) {
   }
 
   return false;
-}
-
-function stringp(x) {
-  return x === "" || (rawobjp(x) && x.str === true);
 }
 
 function symbolp(x) {
@@ -255,6 +253,16 @@ function evl(json, env) {
 
     var argl = args.length;
 
+    if (op === ".") {
+      if (args[1][0] === "-") {
+        // property access
+        return args[0][args[1].substring(1)];
+      } else {
+        // method call
+        return args[0][args[1]].apply(args[0], args.slice(2));
+      }
+    }
+
     if (!(argl === 1 || argl === 2)) {
       console.log(json);
       throw new Error("bad application arg count");
@@ -347,7 +355,7 @@ var core = {
     }
 
     if (rawobjp(x)) {
-      return x.clo ? "clo" : x.str ? "string" : "obj";
+      return x.clo ? "clo" : "obj";
     }
 
     if (arrp(x)) {
