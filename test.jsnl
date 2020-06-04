@@ -1,11 +1,18 @@
 (do
 
+(set concat (fn (a1 a2) (. a1 'concat a2)))
+
+(set slice (fn (xs i) (. xs 'slice i)))
+
 (set mac
   (macro args
     (arr 'set (0 args) (concat (arr 'macro (1 args)) (slice args 2)))))
 
 (mac def args
   (arr 'set (0 args) (concat (arr 'fn (1 args)) (slice args 2))))
+
+(def log (x)
+  (. console 'log x))
 
 (set a 42)
 (log a)
@@ -57,6 +64,9 @@
 
 (log
  ('b dict))
+
+(def length (x)
+  (. x '-length))
 
 (def first (x)
   (0 x))
@@ -121,6 +131,8 @@
 (log "hello")
 
 (log (. "hello" 'toUpperCase))
-(log (. "hello" '-length))
+(log (length "hello"))
+
+(log (. "[[[hello]]]" 'replace (new RegExp "\[" "g") "("))
 
 )

@@ -47,7 +47,11 @@ function lookup(v, env) {
     }
 
     if (typeof env._parent === "undefined") {
-      throw new Error("'" + v + "'unbound");
+      if (typeof global[v] === "undefined") {
+        throw new Error("'" + v + "'unbound");
+      }
+
+      return global[v];
     }
 
     env = env._parent;
@@ -158,6 +162,10 @@ function extendEnv(clo, args) {
   return env;
 }
 
+function newCall(cls) {
+  return new (cls.bind.apply(cls, arguments))();
+}
+
 function evl(json, env) {
   var i;
 
@@ -263,6 +271,10 @@ function evl(json, env) {
       }
     }
 
+    if (op === "new") {
+      return newCall.apply(null, args);
+    }
+
     if (!(argl === 1 || argl === 2)) {
       console.log(json);
       throw new Error("bad application arg count");
@@ -334,20 +346,8 @@ var core = {
   arr: function () {
     return Array.prototype.slice.call(arguments);
   },
-  concat: function (a, b) {
-    return a.concat(b);
-  },
   id: function (a, b) {
     return a === b;
-  },
-  length: function (a) {
-    return a.length;
-  },
-  log: function (x) {
-    return console.log(x);
-  },
-  slice: function (a, n) {
-    return a.slice(n);
   },
   type: function (x) {
     if (x === null) {
