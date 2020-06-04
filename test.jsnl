@@ -82,6 +82,9 @@
 (log
  ('b dict))
 
+(delete dict 'b)
+(log dict)
+
 (def length (x)
   (. x '-length))
 

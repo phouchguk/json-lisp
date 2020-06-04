@@ -352,8 +352,63 @@ var core = {
   "+": function (a, b) {
     return a + b;
   },
+  "-": function (a, b) {
+    return a - b;
+  },
+  "*": function (a, b) {
+    return a * b;
+  },
+  "/": function (a, b) {
+    return a / b;
+  },
+  "%": function (a, b) {
+    return a % b;
+  },
+  "++": function (a) {
+    return a++;
+  },
+  "--": function (a) {
+    return a--;
+  },
+  ">": function (a, b) {
+    return a > b;
+  },
+  "<": function (a, b) {
+    return a < b;
+  },
+  ">=": function (a, b) {
+    return a >= b;
+  },
+  "<=": function (a, b) {
+    return a <= b;
+  },
+  "&": function (a, b) {
+    return a & b;
+  },
+  "|": function (a, b) {
+    return a | b;
+  },
+  "~": function (a) {
+    return ~a;
+  },
+  "^": function (a, b) {
+    return a ^ b;
+  },
+  "<<": function (a, b) {
+    return a << b;
+  },
+  ">>": function (a, b) {
+    return a >> b;
+  },
+  ">>>": function (a, b) {
+    return a >>> b;
+  },
   arr: function () {
     return Array.prototype.slice.call(arguments);
+  },
+  delete: function (o, p) {
+    delete o[p];
+    return "ok";
   },
   id: function (a, b) {
     return a === b;
