@@ -1,8 +1,12 @@
 (do
 
-(set concat (fn (a1 a2) (. a1 'concat a2)))
+(set concat
+  (fn (a1 a2)
+    (. a1 'concat a2)))
 
-(set slice (fn (xs i) (. xs 'slice i)))
+(set slice
+  (fn (xs i)
+    (. xs 'slice i)))
 
 (set mac
   (macro (name args . body)
@@ -10,6 +14,13 @@
 
 (mac def (name args . body)
   (arr 'set name (concat (arr 'fn args) body)))
+
+(mac if args
+  (? (empty args)
+     false
+     (? (id (length args) 1)
+        (0 args)
+        (arr '? (0 args) (1 args) (concat (arr 'if) (slice args 2))))))
 
 (def log (x)
   (. console 'log x))
@@ -111,13 +122,6 @@
   (arr (concat (arr 'fn (arr parms)) body) val))
 
 (log (let x 9 (+ x 2)))
-
-(mac if args
-  (? (empty args)
-     false
-     (? (id (length args) 1)
-        (0 args)
-        (arr '? (0 args) (1 args) (concat (arr 'if) (slice args 2))))))
 
 (log (if))
 
