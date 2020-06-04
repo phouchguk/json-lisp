@@ -163,21 +163,30 @@
 (def array (x)
   (id (type x) "array"))
 
+(log (array []))
+
 (def atom (x)
   (not (array x)))
 
-(def bquote (x)
-  (if (atom x)
-        (quote x)
+(def bqex (x)
+  (if (empty x)
+        (arr 'quote x)
+      (atom x)
+        (arr 'quote x)
       (id (0 x) 'comma)
         (1 x)
       (and (array (0 x)) (id (0 (0 x)) 'comma-at))
-        (concat (1 (0 x)) (bquote (slice x 1)))
-        (concat (arr (bquote (0 x))) (bquote (slice x 1)))))
+        (arr 'concat (1 (0 x)) (bqex (slice x 1)))
+        (arr 'concat (arr 'arr (bqex (0 x))) (bqex (slice x 1)))))
+
+(mac bquote (x)
+  (bqex x))
 
 (log (uvar))
 (log (uvar))
 
 (log (and (log 1) false (log (/ 1 0)) 3))
+
+(log `(+ ,@(arr a a)))
 
 )

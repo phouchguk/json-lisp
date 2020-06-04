@@ -238,8 +238,9 @@ function evl(json, env) {
     }
 
     // application
-    if (!arrp(json)) {
-      throw new Error("expected array");
+    if (!arrp(json) || json.length === 0) {
+      console.log(json);
+      throw new Error("expected array > 0 length");
     }
 
     var op = evl(json[0], env);
@@ -248,6 +249,7 @@ function evl(json, env) {
     if (opIsObj && op.mac) {
       // don't evaluate args
       json = evl(op.body, extendEnv(op, json.slice(1)));
+      //console.log(json);
       continue;
     }
 
@@ -333,6 +335,7 @@ function evl(json, env) {
 
     if (symbolp(op)) {
       if (!objp(args[0])) {
+        console.log(json);
         throw new Error("bad symbol application");
       }
 
