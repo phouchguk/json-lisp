@@ -402,6 +402,9 @@ var core = {
     delete o[p];
     return "ok";
   },
+  eval: function (e) {
+    return evl(e, env);
+  },
   id: function (a, b) {
     return a === b;
   },

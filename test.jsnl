@@ -145,6 +145,8 @@
 
 (log (stringify [1 2 3]))
 
+(log (eval (arr '+ 1 2)))
+
 (def destruct-test1 ({:a :b})
   (log (arr a b)))
 
