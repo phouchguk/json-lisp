@@ -135,4 +135,12 @@
 
 (log (load "test_file.txt"))
 
-(dump "junk.txt" "Text in junk.")
+(def stringify (x)
+  (. JSON 'stringify x))
+
+(def parse (json)
+  (. JSON 'parse json))
+
+(log (parse "[1, 2, 3]"))
+
+(log (stringify [1 2 3]))
