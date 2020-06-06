@@ -22,7 +22,8 @@ const {
   variablep,
   destruct,
   extendEnv,
-  newCall
+  newCall,
+  env
 } = require("./core");
 
 function evl(json, env) {
@@ -201,116 +202,3 @@ function evl(json, env) {
     throw new Error("bad json");
   }
 }
-
-var core = {
-  "+": function (a, b) {
-    return a + b;
-  },
-  "-": function (a, b) {
-    return a - b;
-  },
-  "*": function (a, b) {
-    return a * b;
-  },
-  "/": function (a, b) {
-    return a / b;
-  },
-  "%": function (a, b) {
-    return a % b;
-  },
-  ">": function (a, b) {
-    return a > b;
-  },
-  "<": function (a, b) {
-    return a < b;
-  },
-  ">=": function (a, b) {
-    return a >= b;
-  },
-  "<=": function (a, b) {
-    return a <= b;
-  },
-  "&": function (a, b) {
-    return a & b;
-  },
-  "|": function (a, b) {
-    return a | b;
-  },
-  "~": function (a) {
-    return ~a;
-  },
-  "^": function (a, b) {
-    return a ^ b;
-  },
-  "<<": function (a, b) {
-    return a << b;
-  },
-  ">>": function (a, b) {
-    return a >> b;
-  },
-  ">>>": function (a, b) {
-    return a >>> b;
-  },
-  arr: function () {
-    return Array.prototype.slice.call(arguments);
-  },
-  delete: function (o, p) {
-    delete o[p];
-    return "ok";
-  },
-  eval: function (e) {
-    return evl(e, env);
-  },
-  id: function (a, b) {
-    return a === b;
-  },
-  obj: function () {
-    var args = Array.prototype.slice.call(arguments);
-    var argl = args.length;
-
-    if (argl % 2 !== 0) {
-      throw new Error("bad obj");
-    }
-
-    var o = {};
-
-    for (var i = 0; i < argl; i += 2) {
-      o[args[i]] = args[i + 1];
-    }
-
-    return o;
-  },
-  type: function (x) {
-    if (x === null) {
-      return "null";
-    }
-
-    if (typeof x === "undefined") {
-      return "undefined";
-    }
-
-    if (rawobjp(x)) {
-      return x.clo ? "clo" : "obj";
-    }
-
-    if (arrp(x)) {
-      return "array";
-    }
-
-    if (boolp(x)) {
-      return "boolean";
-    }
-
-    if (numberp(x)) {
-      return "number";
-    }
-
-    if (symbolp(x)) {
-      return "symbol";
-    }
-
-    return typeof x;
-  },
-};
-
-var env = { _parent: core };
