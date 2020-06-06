@@ -23,7 +23,7 @@ const {
   destruct,
   extendEnv,
   newCall,
-  env
+  env,
 } = require("./core");
 
 function analyzeSelfEvaluating(exp) {
@@ -53,6 +53,24 @@ function analyzeSet(exp) {
   };
 }
 
+function analyzeIf(exp) {
+  if (exp.length !== 4) {
+    throw new Error("bad if");
+  }
+
+  const pproc = analyze(exp[1]);
+  const cproc = analyze(exp[2]);
+  const aproc = analyze(exp[3]);
+
+  return function (env) {
+    if (pproc(env) === false) {
+      return aproc(env);
+    }
+
+    return cproc(env);
+  };
+}
+
 function analyze(exp) {
   if (selfEvaluatingP(exp)) {
     return analyzeSelfEvaluating(exp);
@@ -71,6 +89,10 @@ function analyze(exp) {
   if (setp(exp)) {
     return analyzeSet(exp);
   }
+
+  if (ifp(exp)) {
+    return analyzeIf(exp);
+  }
 }
 
 function evl(exp, env) {
@@ -79,3 +101,5 @@ function evl(exp, env) {
 
 console.log(evl(["set", "a", 42], env));
 console.log(env);
+
+console.log(evl(["?", false, 42, 99], env));
