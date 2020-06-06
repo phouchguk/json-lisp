@@ -1,5 +1,3 @@
-(do
-
 (set *uvarn* -1)
 
 (set concat
@@ -64,5 +62,3 @@
      (let v (uvar)
        `(let ,v ,(0 args)
           (? ,v ,v (or ,@(slice args 1)))))))
-
-)

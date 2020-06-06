@@ -152,5 +152,5 @@ function parse(tx) {
 
 const file = process.argv[2];
 const code = fs.readFileSync(file + ".jsnl", { encoding: "utf8", flag: "r" });
-const tokens = tokenise(code);
+const tokens = tokenise("(do " + code + ")");
 fs.writeFileSync(file + ".json", JSON.stringify(parse(tokens)) + "\n");
