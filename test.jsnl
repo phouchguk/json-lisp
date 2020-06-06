@@ -3,6 +3,9 @@
 (def load (f)
   (. fs 'readFileSync f (obj 'encoding 'utf8 'flag 'r)))
 
+(def dump (f s)
+  (. fs 'writeFileSync f s))
+
 (def log (x)
   (. console 'log x)
   x)

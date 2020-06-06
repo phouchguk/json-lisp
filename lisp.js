@@ -445,10 +445,6 @@ var core = {
 
     return o;
   },
-  dump: function (f, s) {
-    fs.writeFileSync(f, s);
-    return "ok";
-  },
   type: function (x) {
     if (x === null) {
       return "null";
