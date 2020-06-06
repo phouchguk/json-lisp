@@ -50,7 +50,11 @@ function lookup(v, env) {
 
     if (typeof env._parent === "undefined") {
       if (typeof global[v] === "undefined") {
-        throw new Error("'" + v + "'unbound");
+        if (typeof module[v] === "undefined") {
+          throw new Error("'" + v + "'unbound");
+        }
+
+        return module[v];
       }
 
       return global[v];
@@ -424,9 +428,6 @@ var core = {
   },
   id: function (a, b) {
     return a === b;
-  },
-  load: function (s) {
-    return fs.readFileSync(s, { encoding: "utf8", flag: "r" });
   },
   obj: function () {
     var args = Array.prototype.slice.call(arguments);
