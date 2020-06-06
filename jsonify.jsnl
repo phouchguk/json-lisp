@@ -1,0 +1,14 @@
+(set string-esc "¬")
+(set commat-at (+ string-esc "@"))
+
+(set strings [])
+
+(def push (a x)
+  (. a 'push x))
+
+(def extract-strings (x i)
+  (if (id 0 (% i 2))
+      x
+      (do
+        (push strings x)
+        (+ string-esc (/ (- i 1) 2)))))

@@ -1,10 +1,4 @@
-(set fs (require "fs"))
 
-(def load (f)
-  (. fs 'readFileSync f (obj 'encoding 'utf8 'flag 'r)))
-
-(def dump (f s)
-  (. fs 'writeFileSync f s))
 
 (def log (x)
   (. console 'log x)
@@ -141,8 +135,6 @@
 
 (log {:a :b})
 
-(log (load "test_file.txt"))
-
 (def stringify (x)
   (. JSON 'stringify x))
 
@@ -169,5 +161,3 @@
 (destruct-test3 {a 1 b [2 3 {e 4}]})
 
 (destruct-test1 (obj 'a 42 'b 99))
-
-(log (load "test_file.txt"))

@@ -1,0 +1,9 @@
+(set fs (require "fs"))
+
+(def load (f)
+  (. fs 'readFileSync f (obj 'encoding 'utf8 'flag 'r)))
+
+(def dump (f s)
+  (. fs 'writeFileSync f s))
+
+(log (load "test_file.txt"))
