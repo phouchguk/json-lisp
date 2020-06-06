@@ -132,3 +132,7 @@
 (log (or false 2 3))
 
 (log {:a :b})
+
+(log (load "test_file.txt"))
+
+(dump "junk.txt" "Text in junk.")

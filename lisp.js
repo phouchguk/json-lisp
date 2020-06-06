@@ -410,6 +410,13 @@ var core = {
   id: function (a, b) {
     return a === b;
   },
+  load: function (s) {
+    return fs.readFileSync(s, { encoding: "utf8", flag: "r" });
+  },
+  dump: function (f, s) {
+    fs.writeFileSync(f, s);
+    return "ok";
+  },
   type: function (x) {
     if (x === null) {
       return "null";
@@ -444,5 +451,5 @@ var core = {
 };
 
 var env = { _parent: core };
-evl(JSON.parse(fs.readFileSync("prelude.json")), env);
-evl(JSON.parse(fs.readFileSync("test.json")), env);
+evl(JSON.parse(fs.readFileSync("prelude.json", { encoding: "utf8", flag: "r" })), env);
+evl(JSON.parse(fs.readFileSync("test.json", { encoding: "utf8", flag: "r" })), env);
