@@ -145,28 +145,43 @@ function variablep(x) {
   return symbolp(x);
 }
 
-function extendEnv(clo, args) {
-  var env = { _parent: clo.env };
+function destruct(env, parm, arg) {
+  if (symbolp(parm)) {
+    env[parm] = arg;
+    return;
+  }
 
-  if (symbolp(clo.parms)) {
-    env[clo.parms] = args;
-  } else {
-    var argl = args.length;
-    if (clo.parml > -1 && clo.parml !== argl) {
-      // should destructure arrs and objs
-      throw new Error("bad args");
+  if (arrp(parm)) {
+    var argl = arg.length;
+
+    if (parm.length !== argl && parm.indexOf(".") === -1) {
+      throw new Error("bad array args");
     }
 
     for (var i = 0; i < argl; i++) {
-      if (clo.parms[i] === ".") {
-        env[clo.parms[i + 1]] = args.slice(i);
-        break;
+      if (parm[i] === ".") {
+        destruct(env, parm[i + 1], arg.slice(i));
+        return;
       }
 
-      env[clo.parms[i]] = args[i];
+      destruct(env, parm[i], arg[i]);
     }
+
+    return;
   }
 
+  if (objp(parm)) {
+    for (var k in parm) {
+      if (parm.hasOwnProperty(k)) {
+        destruct(env, parm[k], arg[k]);
+      }
+    }
+  }
+}
+
+function extendEnv(clo, args) {
+  var env = { _parent: clo.env };
+  destruct(env, clo.parms, args);
   return env;
 }
 
@@ -451,5 +466,11 @@ var core = {
 };
 
 var env = { _parent: core };
-evl(JSON.parse(fs.readFileSync("prelude.json", { encoding: "utf8", flag: "r" })), env);
-evl(JSON.parse(fs.readFileSync("test.json", { encoding: "utf8", flag: "r" })), env);
+evl(
+  JSON.parse(fs.readFileSync("prelude.json", { encoding: "utf8", flag: "r" })),
+  env
+);
+evl(
+  JSON.parse(fs.readFileSync("test.json", { encoding: "utf8", flag: "r" })),
+  env
+);

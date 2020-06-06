@@ -144,3 +144,18 @@
 (log (parse "[1, 2, 3]"))
 
 (log (stringify [1 2 3]))
+
+(def destruct-test1 ({:a :b})
+  (log (arr a b)))
+
+(def destruct-test2 ({a c :b})
+  (log (arr c b)))
+
+(def destruct-test3 ({:a b [c d {:e}]})
+  (log (arr a c d e)))
+
+(destruct-test1 {a 42 b 99})
+
+(destruct-test2 {c 42 b 99})
+
+(destruct-test3 {a 1 b [2 3 {e 4}]})
