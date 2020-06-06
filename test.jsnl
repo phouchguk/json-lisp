@@ -130,3 +130,5 @@
 (log `(+ ,@(arr a a)))
 
 (log (or false 2 3))
+
+(log {:a :b})

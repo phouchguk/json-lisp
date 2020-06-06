@@ -110,7 +110,15 @@ function parseObj(tx) {
       return o;
     }
 
-    o[tx.shift()] = parse(tx);
+    let key = tx.shift();
+
+    if (key[0] === ":") {
+      // {:a :b} => {"a": "a", "b": "b"}
+      key = key.substring(1);
+      o[key] = key;
+    } else {
+      o[key] = parse(tx);
+    }
   }
 }
 
