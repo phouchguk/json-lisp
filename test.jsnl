@@ -159,3 +159,5 @@
 (destruct-test2 {c 42 b 99})
 
 (destruct-test3 {a 1 b [2 3 {e 4}]})
+
+(destruct-test1 (obj 'a 42 'b 99))

@@ -428,6 +428,22 @@ var core = {
   load: function (s) {
     return fs.readFileSync(s, { encoding: "utf8", flag: "r" });
   },
+  obj: function () {
+    var args = Array.prototype.slice.call(arguments);
+    var argl = args.length;
+
+    if (argl % 2 !== 0) {
+      throw new Error("bad obj");
+    }
+
+    var o = {};
+
+    for (var i = 0; i < argl; i += 2) {
+      o[args[i]] = args[i + 1];
+    }
+
+    return o;
+  },
   dump: function (f, s) {
     fs.writeFileSync(f, s);
     return "ok";
