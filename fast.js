@@ -90,7 +90,7 @@ function analyzeFn(exp) {
     parml: exp[1].indexOf(".") > -1 ? -1 : exp[1].length,
   };
 
-  if (fnp(json)) {
+  if (fnp(exp)) {
     clo.clo = true;
   } else {
     clo.mac = true;
@@ -120,12 +120,131 @@ function analyzeSeq(exps) {
   let proc = analyze(exps[0]);
 
   for (let i = 1; i < expsl; i++) {
+    proc = sequentially(proc, analyze(exps[i]));
+
     if (i === lastIndex) {
       return proc;
     }
-
-    proc = sequentially(proc, analyze(exps[i]));
   }
+}
+
+function executeApplication(proc, args, isObj) {
+  if (primitivep(proc)) {
+    return proc.apply(null, args);
+  }
+
+  if (isObj && proc.clo) {
+    return proc.body(extendEnv(proc, args));
+  }
+
+  if (proc === ".") {
+    if (args[1][0] === "-") {
+      // property access
+      return args[0][args[1].substring(1)];
+    } else {
+      // method call
+      return args[0][args[1]].apply(args[0], args.slice(2));
+    }
+  }
+
+  if (proc === "new") {
+    return newCall.apply(null, args);
+  }
+
+  const argl = args.length;
+
+  if (!(argl === 1 || argl === 2)) {
+    throw new Error("bad application arg count");
+  }
+
+  const isAssign = argl === 2;
+
+  if (isObj) {
+    // obj application
+    if (!symbolp(args[0])) {
+      throw new Error("bad object application");
+    }
+
+    if (isAssign) {
+      proc[args[0]] = args[1];
+      return "ok";
+    }
+
+    return proc[args[0]];
+  }
+
+  if (arrp(proc)) {
+    if (!numberp(args[0])) {
+      throw new Error("bad array application");
+    }
+
+    if (isAssign) {
+      proc[args[0]] = args[1];
+      return "ok";
+    }
+
+    return proc[args[0]];
+  }
+
+  if (numberp(proc)) {
+    if (!arrp(args[0])) {
+      throw new Error("bad number application");
+    }
+
+    if (isAssign) {
+      args[0][proc] = args[1];
+      return "ok";
+    }
+
+    return args[0][proc];
+  }
+
+  if (symbolp(proc)) {
+    if (!objp(args[0])) {
+      throw new Error("bad symbol application");
+    }
+
+    if (isAssign) {
+      args[0][proc] = args[1];
+      return "ok";
+    }
+
+    return args[0][proc];
+  }
+
+  throw new Error("bad json");
+}
+
+function executeMacro(op, aprocs, unevs, len, env) {
+  const isObj = objp(op);
+
+  if (isObj && op.mac) {
+    const expansion = op.body(extendEnv(op, unevs));
+    return evl(expansion, env);
+  }
+
+  const args = [];
+
+  for (let i = 0; i < len; i++) {
+    args[i] = aprocs[i](env);
+  }
+
+  return executeApplication(op, args, isObj);
+}
+
+function analyzeApplication(exp, len) {
+  const fproc = analyze(exp[0]);
+  const aprocs = [];
+
+  for (let i = 1; i < len; i++) {
+    aprocs[i - 1] = analyze(exp[i]);
+  }
+
+  len = len - 1;
+
+  return function (env) {
+    return executeMacro(fproc(env), aprocs, exp.slice(1), len, env);
+  };
 }
 
 function analyze(exp) {
@@ -158,13 +277,44 @@ function analyze(exp) {
   if (dop(exp)) {
     return analyzeSeq(exp.slice(1));
   }
+
+  if (!arrp(exp)) {
+    throw new Error("expected array");
+  }
+
+  const expl = exp.length;
+
+  if (expl === 0) {
+    throw new Error("bad empty array");
+  }
+
+  return analyzeApplication(exp, expl);
 }
 
 function evl(exp, env) {
   return analyze(exp)(env);
 }
 
-console.log(evl(["set", "a", 42], env));
-console.log(env);
+function lookup(v, env) {
+  for (;;) {
+    if (typeof env[v] !== "undefined") {
+      return env[v];
+    }
 
-console.log(evl(["?", false, 42, 99], env));
+    if (typeof env._parent === "undefined") {
+      if (typeof global[v] === "undefined") {
+        if (typeof module[v] === "undefined") {
+          throw new Error("'" + v + "'unbound");
+        }
+
+        return module[v];
+      }
+
+      return global[v];
+    }
+
+    env = env._parent;
+  }
+}
+
+console.log(evl(["do", 1, 2, 3], env));

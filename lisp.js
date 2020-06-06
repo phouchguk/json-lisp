@@ -122,8 +122,6 @@ function evl(json, env) {
       continue;
     }
 
-    var argl = args.length;
-
     if (op === ".") {
       if (args[1][0] === "-") {
         // property access
@@ -137,6 +135,8 @@ function evl(json, env) {
     if (op === "new") {
       return newCall.apply(null, args);
     }
+
+    var argl = args.length;
 
     if (!(argl === 1 || argl === 2)) {
       console.log(json);
