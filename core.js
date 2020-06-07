@@ -221,6 +221,9 @@ var core = {
     delete o[p];
     return "ok";
   },
+  err: function (msg) {
+    throw new Error(msg);
+  },
   eval: function (e) {
     return core.evl(e, env);
   },
