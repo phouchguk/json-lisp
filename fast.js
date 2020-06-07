@@ -12,13 +12,12 @@ const {
   objp,
   primitivep,
   quotep,
-  rawobjp,
   selfEvaluatingP,
   set,
   setp,
+  setEval,
   symbolp,
   taggedArr,
-  undefinedp,
   variablep,
   destruct,
   extendEnv,
@@ -118,6 +117,10 @@ function analyzeSeq(exps) {
 
   const lastIndex = expsl - 1;
   let proc = analyze(exps[0]);
+
+  if (expsl === 1) {
+    return proc;
+  }
 
   for (let i = 1; i < expsl; i++) {
     proc = sequentially(proc, analyze(exps[i]));
@@ -295,26 +298,4 @@ function evl(exp, env) {
   return analyze(exp)(env);
 }
 
-function lookup(v, env) {
-  for (;;) {
-    if (typeof env[v] !== "undefined") {
-      return env[v];
-    }
-
-    if (typeof env._parent === "undefined") {
-      if (typeof global[v] === "undefined") {
-        if (typeof module[v] === "undefined") {
-          throw new Error("'" + v + "'unbound");
-        }
-
-        return module[v];
-      }
-
-      return global[v];
-    }
-
-    env = env._parent;
-  }
-}
-
-console.log(evl(["do", 1, 2, 3], env));
+setEval(evl);

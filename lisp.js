@@ -15,6 +15,7 @@ const {
   selfEvaluatingP,
   set,
   setp,
+  setEval,
   symbolp,
   taggedArr,
   variablep,
@@ -200,3 +201,5 @@ function evl(json, env) {
     throw new Error("bad json");
   }
 }
+
+setEval(evl);

@@ -64,6 +64,10 @@ function quotep(x) {
   return false;
 }
 
+function selfEvaluatingObjP(x) {
+  return typeof x === "object" && (typeof x.length === "undefined" || x.length === 0);
+}
+
 function objp(x) {
   return typeof x === "object" && typeof x.length === "undefined";
 }
@@ -78,7 +82,7 @@ function selfEvaluatingP(x) {
     numberp(x) ||
     boolp(x) ||
     jsfnp(x) ||
-    objp(x)
+    selfEvaluatingObjP(x)
   );
 }
 
@@ -218,7 +222,7 @@ var core = {
     return "ok";
   },
   eval: function (e) {
-    return evl(e, env);
+    return core.evl(e, env);
   },
   id: function (a, b) {
     return a === b;
@@ -272,6 +276,10 @@ var core = {
   },
 };
 
+function setEval(f) {
+  core.evl = f;
+}
+
 var env = { _parent: core };
 
 module.exports = {
@@ -289,6 +297,7 @@ module.exports = {
   selfEvaluatingP,
   set,
   setp,
+  setEval,
   symbolp,
   taggedArr,
   variablep,
