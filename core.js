@@ -78,9 +78,9 @@ function selfEvaluatingP(x) {
     x === "apply" ||
     x === "new" ||
     x === null ||
+    typeof x === "undefined" ||
     numberp(x) ||
     boolp(x) ||
-    undefinedp(x) ||
     jsfnp(x) ||
     objp(x)
   );
@@ -115,10 +115,6 @@ function symbolp(x) {
 
 function taggedArr(x, tag) {
   return arrp(x) && x[0] === tag;
-}
-
-function undefinedp(x) {
-  return typeof x === "undefined";
 }
 
 function variablep(x) {
@@ -300,7 +296,6 @@ module.exports = {
   setp,
   symbolp,
   taggedArr,
-  undefinedp,
   variablep,
   destruct,
   extendEnv,

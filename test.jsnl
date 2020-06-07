@@ -60,9 +60,6 @@
 (delete dict 'b)
 (log dict)
 
-(def length (x)
-  (. x '-length))
-
 (def first (x)
   (0 x))
 
@@ -71,12 +68,6 @@
 
 (def copy (x)
   (slice x 0))
-
-(def empty (x)
-  (id (length x) 0))
-
-(def not (x)
-  (id x false))
 
 (log
  (first a1))

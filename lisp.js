@@ -18,7 +18,6 @@ const {
   setp,
   symbolp,
   taggedArr,
-  undefinedp,
   variablep,
   destruct,
   extendEnv,

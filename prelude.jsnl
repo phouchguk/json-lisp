@@ -15,6 +15,12 @@
 (mac def (name args . body)
   (arr 'set name (concat (arr 'fn args) body)))
 
+(def length (x)
+  (. x '-length))
+
+(def empty (x)
+  (id (length x) 0))
+
 (mac if args
   (? (empty args)
      false
@@ -31,6 +37,9 @@
 
 (def array (x)
   (id (type x) "array"))
+
+(def not (x)
+  (id x false))
 
 (def atom (x)
   (not (array x)))
