@@ -12,7 +12,6 @@ const {
   objp,
   primitivep,
   quotep,
-  rawobjp,
   selfEvaluatingP,
   set,
   setp,

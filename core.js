@@ -48,10 +48,6 @@ function numberp(x) {
   return typeof x === "number";
 }
 
-function objp(x) {
-  return rawobjp(x) && typeof x.str === "undefined";
-}
-
 function primitivep(x) {
   return jsfnp(x);
 }
@@ -68,7 +64,7 @@ function quotep(x) {
   return false;
 }
 
-function rawobjp(x) {
+function objp(x) {
   return typeof x === "object" && typeof x.length === "undefined";
 }
 
@@ -252,7 +248,7 @@ var core = {
       return "undefined";
     }
 
-    if (rawobjp(x)) {
+    if (objp(x)) {
       return x.clo ? "clo" : "obj";
     }
 
@@ -290,7 +286,6 @@ module.exports = {
   objp,
   primitivep,
   quotep,
-  rawobjp,
   selfEvaluatingP,
   set,
   setp,
