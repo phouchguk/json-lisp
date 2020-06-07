@@ -60,7 +60,7 @@ const delims = {
 delims[COMMA_AT] = "comma-at";
 
 function getString(i) {
-  return ["quote", strings[i]];
+  return ["quote", strings[i].replace(/¬/g, "\"")];
 }
 
 function parseSymbol(s) {

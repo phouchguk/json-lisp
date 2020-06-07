@@ -1,5 +1,5 @@
 (set string-esc "¬")
-(set commat-at (+ string-esc "@"))
+(set comma-at (+ string-esc "@"))
 
 (set strings [])
 
@@ -12,3 +12,19 @@
       (do
         (push strings x)
         (+ string-esc (/ (- i 1) 2)))))
+
+(def cons (x xs)
+  (concat (arr x) xs))
+
+(def log (x)
+  (. console 'log x)
+  x)
+
+(log strings)
+(push strings "test")
+(push strings "another")
+(log strings)
+
+(log (cons 'a [b c]))
+
+(log "\"hello\"")

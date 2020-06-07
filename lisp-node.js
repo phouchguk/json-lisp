@@ -9,7 +9,7 @@ function lookup(v, env) {
     if (typeof env._parent === "undefined") {
       if (typeof global[v] === "undefined") {
         if (typeof module[v] === "undefined") {
-          throw new Error("'" + v + "'unbound");
+          throw new Error("'" + v + "' unbound");
         }
 
         return module[v];
@@ -27,6 +27,6 @@ evl(
   env
 );
 evl(
-  JSON.parse(fs.readFileSync("test.json", { encoding: "utf8", flag: "r" })),
+  JSON.parse(fs.readFileSync("jsonify.json", { encoding: "utf8", flag: "r" })),
   env
 );
