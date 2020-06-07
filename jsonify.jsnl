@@ -1,10 +1,34 @@
-(set string-esc "¬")
+(set string-esc "#")
 (set comma-at (+ string-esc "@"))
+
+(set delims (obj "'" "quote"
+                 "`" "bquote"
+                 "," "comma"
+                 comma-at "comma-at"))
 
 (set strings [])
 
 (def push (a x)
-  (. a 'push x))
+  (. a 'push x)
+  a)
+
+(def range (start end xs)
+  (if (> start end)
+      xs
+      (do
+        (push xs start)
+        (range (+ start 1) end xs))))
+
+(def rest (xs)
+  (slice xs 1))
+
+(def map-loop (f xs i res)
+  (if (empty xs)
+      res
+      (map-loop f (rest xs) (+ i 1) (concat res (arr (f (0 xs) i))))))
+
+(def map (f xs)
+  (map-loop f xs 0 []))
 
 (def extract-strings (x i)
   (if (id 0 (% i 2))
@@ -16,15 +40,46 @@
 (def cons (x xs)
   (concat (arr x) xs))
 
+(def replace (x y str)
+  (. str 'replace (new RegExp x "g") y))
+
+(def split (x str)
+  (. str 'split x))
+
+(def join (x xs)
+  (. xs 'join x))
+
 (def log (x)
   (. console 'log x)
   x)
 
-(log strings)
-(push strings "test")
-(push strings "another")
-(log strings)
+(def inc (x _)
+  (+ x 1))
 
-(log (cons 'a [b c]))
+(log (map inc [1 2 3]))
 
-(log "\"hello\"")
+(log (replace "\[" "(" "[hello]"))
+
+(log (join "-" (split " " "one two three")))
+
+(set code "(arr 1 2 3 \"he\\"llo\")")
+
+
+(log (push [1 2] 3))
+
+(def thread (x xs)
+  (if (empty xs)
+      x
+      (thread (push (0 xs) x) (rest xs))))
+
+(mac -> args
+  (thread (0 args) (rest args)))
+
+(log (-> code
+         (replace "\\\"" string-esc)
+         (split "\"")
+         (map extract-strings)
+         (join "")))
+
+;(log (join "" (map extract-strings (split "\"" (replace "\\\"" string-esc code)))))
+(log strings)

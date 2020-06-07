@@ -131,7 +131,7 @@ function destruct(env, parm, arg) {
     var argl = arg.length;
 
     if (parm.length !== argl && parm.indexOf(".") === -1) {
-      throw new Error("bad array args");
+      throw new Error("expected " + parm.length + " arguments, got " + argl);
     }
 
     for (var i = 0; i < argl; i++) {
