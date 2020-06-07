@@ -1,25 +1,28 @@
-
-
 (def log (x)
   (. console 'log x)
   x)
 
 (set a 42)
+;; does log return its arg?
 (log (+ (log a) 1))
 
 (set b 99)
 (set c a)
+;; lookup works in set
 (log c)
 
+;; if works
 (log
  (? 0 b c))
 
+;; do works
 (log
  (do a b c))
 
 (log
  (do 100))
 
+;; primitive call
 (log
  (+ b c))
 
@@ -27,24 +30,33 @@
   (+ 1 2)
   (+ x y))
 
+;; compound call
 (log
  (add 3 4))
 
 (set a1 [1 2 3])
 (log a1)
+
+;; number as fn
 (log
  (0 a1))
 (0 a1 10)
-(a1 2 100)
-(log a1)
 
+;; array as fn
 (log
  ([97 98 99] 1))
 
+;; array assignment
+(a1 2 100)
+(log a1)
+
 (set dict {a 1 b 2})
+
+;; symbol dict lookup
 (log
  ('b dict))
 
+;; dict assignment
 ('b dict 22)
 
 (set z 'b)
@@ -57,6 +69,7 @@
 (log
  ('b dict))
 
+;; test delete
 (delete dict 'b)
 (log dict)
 
@@ -78,12 +91,14 @@
 (log
  (empty a1))
 
+;; test fns
 (log
  (not (id (length (copy a1)) 2)))
 
 (log
  (type null))
 
+;; simple macro test
 (mac double (x)
   (arr 'add x x))
 
@@ -93,8 +108,10 @@
 (log
  (concat [1 2 3] [4 5 6]))
 
+;; let
 (log (let x 9 (+ x 2)))
 
+;; more if
 (log (if))
 
 (log (if (+ 1 2)))
@@ -106,11 +123,13 @@
 
 (log "hello")
 
+;; js interop
 (log (. "hello" 'toUpperCase))
 (log (length "hello"))
 
 (log (. "[[[hello]]]" 'replace (new RegExp "\[" "g") "("))
 
+;; rest args
 (log ((fn (x . y) y) 1 2 3))
 
 (log (array []))
@@ -120,10 +139,12 @@
 
 (log (and (log 1) false (log (/ 1 0)) 3))
 
+;; bquote
 (log `(+ ,@(arr a a)))
 
 (log (or false 2 3))
 
+;; same key/val shorthand test
 (log {:a :b})
 
 (def stringify (x)
@@ -136,8 +157,10 @@
 
 (log (stringify [1 2 3]))
 
+;; eval
 (log (eval (arr '+ 1 2)))
 
+;; destructuring
 (def destruct-test1 ({:a :b})
   (log (arr a b)))
 

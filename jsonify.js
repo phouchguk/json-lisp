@@ -17,6 +17,10 @@ function extractStrings(x, i) {
   }
 }
 
+function removeComment(line) {
+  return line.split(";")[0];
+}
+
 function tokenise(s) {
   strings.length = 0;
 
@@ -25,6 +29,9 @@ function tokenise(s) {
     .split(/"/g)
     .map(extractStrings)
     .join("")
+    .split("\n")
+    .map(removeComment)
+    .join("\n")
     .replace(/\[/g, "[quote [")
     .replace(/\]/g, "]]")
     .replace(/\(/g, "[")

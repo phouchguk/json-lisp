@@ -22,7 +22,7 @@ const {
   destruct,
   extendEnv,
   newCall,
-  env
+  env,
 } = require("./core");
 
 function evl(json, env) {
