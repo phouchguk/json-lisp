@@ -37,6 +37,9 @@
         (push strings x)
         (+ string-esc (/ (- i 1) 2)))))
 
+(def rm-comment (line _)
+  (0 (split ";" line)))
+
 (def cons (x xs)
   (concat (arr x) xs))
 
@@ -62,8 +65,7 @@
 
 (log (join "-" (split " " "one two three")))
 
-(set code "(arr 1 2 3 \"he\\"llo\")")
-
+(set code "(arr 1 2 3 \"he\\"llo\") ; silly example")
 
 (log (push [1 2] 3))
 
@@ -79,7 +81,10 @@
          (replace "\\\"" string-esc)
          (split "\"")
          (map extract-strings)
-         (join "")))
+         (join "")
+         (split newline)
+         (map rm-comment)
+         (join newline)))
 
 ;(log (join "" (map extract-strings (split "\"" (replace "\\\"" string-esc code)))))
 (log strings)

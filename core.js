@@ -227,6 +227,7 @@ var core = {
   id: function (a, b) {
     return a === b;
   },
+  newline: "\n",
   obj: function () {
     var args = Array.prototype.slice.call(arguments);
     var argl = args.length;
